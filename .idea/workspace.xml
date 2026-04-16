@@ -4,11 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a9935f72-4b07-4b85-80a1-58289998f23b" name="Changes" comment="Initial Commit">
-      <change afterPath="$PROJECT_DIR$/.idea/TAC.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dev1.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/roadmap.md" beforeDir="false" />
+    <list default="true" id="a9935f72-4b07-4b85-80a1-58289998f23b" name="Changes" comment="Simple meanline model">
+      <change afterPath="$PROJECT_DIR$/dev.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_dev.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/thermo_model/test_thermo.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/thermo_model/thermo.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev1.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,7 +57,11 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Python.dev.executor": "Run",
     "Python.dev1.executor": "Run",
+    "Python.test_dev.executor": "Run",
+    "Python.test_thermo.executor": "Run",
+    "Python.thermo.executor": "Run",
     "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
@@ -76,6 +82,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="Z:\Brandon\Code Projects\TAC\thermo_model" />
       <recent name="Z:\Brandon\Code Projects\TAC" />
     </key>
   </component>
@@ -102,7 +109,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776260254190</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Simple meanline model">
+      <option name="closed" value="true" />
+      <created>1776332298566</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1776332298566</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -110,6 +125,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Initial Commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="Initial Commit" />
+    <MESSAGE value="Simple meanline model" />
+    <option name="LAST_COMMIT_MESSAGE" value="Simple meanline model" />
   </component>
 </project>
