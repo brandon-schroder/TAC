@@ -95,3 +95,23 @@ class DeviationModel:
 
         return self.delta_0 + self.k_inc * incidence + self.k_mach * m_rel2
 
+class BlockageModel:
+    """
+    Wake blockage subelement.  Returns effective area reduction [m²].
+
+    The simple constant-fraction model here is a placeholder — replace
+    with a displacement-thickness-based correlation (e.g. Koch-Smith)
+    for higher fidelity.  The interface is intentionally identical to
+    LossModel and DeviationModel: called inside residuals(), implicit.
+    """
+
+    def __init__(self, name: str, blockage_fraction: float = 0.0):
+        self.name              = name
+        self.blockage_fraction = blockage_fraction
+
+    def compute(self, inlet: "FlowStation", r2: float,
+                r_inner: float, r_outer: float) -> float:
+        """Returns blockage area [m²]."""
+        gross_area = np.pi * (r_outer**2 - r_inner**2)
+        return self.blockage_fraction * gross_area
+

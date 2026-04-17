@@ -4,13 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a9935f72-4b07-4b85-80a1-58289998f23b" name="Changes" comment="Simple meanline model">
-      <change afterPath="$PROJECT_DIR$/dev.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test_dev.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/thermo_model/test_thermo.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/thermo_model/thermo.py" afterDir="false" />
+    <list default="true" id="a9935f72-4b07-4b85-80a1-58289998f23b" name="Changes" comment="Add thermos package and update meanline structure">
+      <change afterPath="$PROJECT_DIR$/slopecurvature.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/streamsegment.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dev1.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/elements.py" beforeDir="false" afterPath="$PROJECT_DIR$/elements.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/subelements.py" beforeDir="false" afterPath="$PROJECT_DIR$/subelements.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_dev.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_dev.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -117,7 +117,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776332298566</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Add thermos package and update meanline structure">
+      <option name="closed" value="true" />
+      <created>1776371071259</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1776371071259</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -126,6 +134,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Initial Commit" />
     <MESSAGE value="Simple meanline model" />
-    <option name="LAST_COMMIT_MESSAGE" value="Simple meanline model" />
+    <MESSAGE value="Add thermos package and update meanline structure" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add thermos package and update meanline structure" />
   </component>
 </project>
