@@ -30,13 +30,13 @@ class LossModel:
         (e.g. shock loss, exit Mach).
         """
         u1       = omega * inlet.r
-        w_theta1 = u1 - inlet.v_theta
+        w_theta1 = u1 - inlet.v_u
         w_sq1    = inlet.v_m**2 + w_theta1**2
 
-        v_sq1 = inlet.v_m**2 + inlet.v_theta**2
-        h1    = inlet.ht - 0.5 * v_sq1
+        v_sq1 = inlet.v_m**2 + inlet.v_u**2
+        h1    = inlet.h_t - 0.5 * v_sq1
         t1    = h1 / CP
-        p1    = inlet.pt * (t1 / inlet.tt) ** (GAMMA / (GAMMA - 1.0))
+        p1    = inlet.p_t * (t1 / inlet.t_t) ** (GAMMA / (GAMMA - 1.0))
         rho1  = p1 / (R * t1)
 
         q_rel   = 0.5 * rho1 * w_sq1
@@ -78,7 +78,7 @@ class DeviationModel:
         """
         # Incidence (computed from fixed inlet — does not vary with solver vars)
         u1        = omega * inlet.r
-        w_theta1  = u1 - inlet.v_theta
+        w_theta1  = u1 - inlet.v_u
         beta1     = np.arctan2(w_theta1, inlet.v_m)
         incidence = beta1 - beta_le
 
@@ -89,7 +89,7 @@ class DeviationModel:
         v_sq2     = v_m2**2 + v_theta2**2
         w_sq2     = v_m2**2 + w_theta2**2
         # Approximate static T2 (inlet.ht used as proxy — solver iterates to convergence)
-        h2_approx = inlet.ht - 0.5 * v_sq2
+        h2_approx = inlet.h_t - 0.5 * v_sq2
         t2_approx = max(h2_approx / CP, 1.0)      # guard against negative T
         m_rel2    = np.sqrt(w_sq2 / (GAMMA * R * t2_approx))
 

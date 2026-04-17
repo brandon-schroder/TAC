@@ -9,8 +9,8 @@ loss_r  = [LossModel("L", 0.05) for _ in range(N)]
 dev_r   = [DeviationModel("D", delta_0=np.radians(2)) for _ in range(N)]
 blk_r   = [BlockageModel("B", blockage_fraction=0.02) for _ in range(N)]
 
-inlet  = InletBoundary("inlet", m=10.0, pt=101325., tt=288., r=0.15,
-                        v_theta=0., v_m=150.)
+inlet  = InletBoundary("inlet", m=10.0, p_t=101325., t_t=288., r=0.15,
+                        v_u=0., v_m=150.)
 exp    = Expander("exp", N, r_hub=0.10, r_tip=0.20)
 rotor  = BladeRow("rotor", N, r_hub=0.10, r_tip=0.20,
                   beta_le_dist=[np.radians(50)]*N,
