@@ -1,5 +1,8 @@
 from flowstation import *
 from thermo import *
+import numpy as np
+
+
 # =============================================================================
 # 4. SUBELEMENTS
 # =============================================================================
@@ -18,7 +21,7 @@ class LossModel:
     """
 
     def __init__(self, name: str, loss_coefficient: float):
-        self.name             = name
+        self.name = name
         self.loss_coefficient = loss_coefficient
 
     def compute(self, inlet: FlowStation, omega: float,
@@ -29,17 +32,17 @@ class LossModel:
         signature so that future loss models can depend on exit conditions
         (e.g. shock loss, exit Mach).
         """
-        u1       = omega * inlet.r
-        w_theta1 = u1 - inlet.v_u
-        w_sq1    = inlet.v_m**2 + w_theta1**2
+        u1 = omega * inlet.r
+        w_u1 = u1 - inlet.v_u
+        w_sq1 = inlet.v_m ** 2 + w_u1 ** 2
 
-        v_sq1 = inlet.v_m**2 + inlet.v_u**2
-        h1    = inlet.h_t - 0.5 * v_sq1
-        t1    = h1 / CP
-        p1    = inlet.p_t * (t1 / inlet.t_t) ** (GAMMA / (GAMMA - 1.0))
-        rho1  = p1 / (R * t1)
+        v_sq1 = inlet.v_m ** 2 + inlet.v_u ** 2
+        h1 = inlet.h_t - 0.5 * v_sq1
+        t1 = h1 / CP
+        p1 = inlet.p_t * (t1 / inlet.t_t) ** (GAMMA / (GAMMA - 1.0))
+        rho1 = p1 / (R * t1)
 
-        q_rel   = 0.5 * rho1 * w_sq1
+        q_rel = 0.5 * rho1 * w_sq1
         return self.loss_coefficient * q_rel
 
 
@@ -63,10 +66,10 @@ class DeviationModel:
 
     def __init__(self, name: str, delta_0: float,
                  k_inc: float = 0.10, k_mach: float = 0.05):
-        self.name    = name
+        self.name = name
         self.delta_0 = delta_0
-        self.k_inc   = k_inc
-        self.k_mach  = k_mach
+        self.k_inc = k_inc
+        self.k_mach = k_mach
 
     def compute(self, inlet: FlowStation, beta_le: float, omega: float,
                 r2: float, v_m2: float, beta2: float) -> float:
@@ -77,23 +80,25 @@ class DeviationModel:
         r2, v_m2, beta2 — current solver iteration's exit state
         """
         # Incidence (computed from fixed inlet — does not vary with solver vars)
-        u1        = omega * inlet.r
-        w_theta1  = u1 - inlet.v_u
-        beta1     = np.arctan2(w_theta1, inlet.v_m)
+        u1 = omega * inlet.r
+        w_u1 = u1 - inlet.v_u
+        beta1 = np.arctan2(w_u1, inlet.v_m)
         incidence = beta1 - beta_le
 
         # Relative exit Mach from current solver state
-        u2        = omega * r2
-        w_theta2  = v_m2 * np.tan(beta2)          # W_theta in relative frame
-        v_theta2  = u2 - w_theta2
-        v_sq2     = v_m2**2 + v_theta2**2
-        w_sq2     = v_m2**2 + w_theta2**2
-        # Approximate static T2 (inlet.ht used as proxy — solver iterates to convergence)
+        u2 = omega * r2
+        w_u2 = v_m2 * np.tan(beta2)  # W_u in relative frame
+        v_u2 = u2 - w_u2
+        v_sq2 = v_m2 ** 2 + v_u2 ** 2
+        w_sq2 = v_m2 ** 2 + w_u2 ** 2
+
+        # Approximate static T2 (inlet.h_t used as proxy — solver iterates to convergence)
         h2_approx = inlet.h_t - 0.5 * v_sq2
-        t2_approx = max(h2_approx / CP, 1.0)      # guard against negative T
-        m_rel2    = np.sqrt(w_sq2 / (GAMMA * R * t2_approx))
+        t2_approx = max(h2_approx / CP, 1.0)  # guard against negative T
+        m_rel2 = np.sqrt(w_sq2 / (GAMMA * R * t2_approx))
 
         return self.delta_0 + self.k_inc * incidence + self.k_mach * m_rel2
+
 
 class BlockageModel:
     """
@@ -106,12 +111,20 @@ class BlockageModel:
     """
 
     def __init__(self, name: str, blockage_fraction: float = 0.0):
-        self.name              = name
+        self.name = name
         self.blockage_fraction = blockage_fraction
 
-    def compute(self, inlet: "FlowStation", r2: float,
+    def compute(self, inlet: "FlowStation",
                 r_inner: float, r_outer: float) -> float:
-        """Returns blockage area [m²]."""
-        gross_area = np.pi * (r_outer**2 - r_inner**2)
-        return self.blockage_fraction * gross_area
+        """
+        Returns blockage area [m²].
 
+        r_inner, r_outer — current boundary radii for this streamtube,
+        updated by BladeRow._update_segment_geometry() before each
+        residual evaluation so this call is always seeing current geometry.
+
+        To implement a tip-clearance model that depends on local radius,
+        add r_tip as a constructor argument and compare r_outer to r_tip here.
+        """
+        gross_area = np.pi * (r_outer ** 2 - r_inner ** 2)
+        return self.blockage_fraction * gross_area

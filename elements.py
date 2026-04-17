@@ -12,10 +12,10 @@ from thermo import CP, GAMMA, R, entropy_from_pt_tt
 # =============================================================================
 class Element:
     def __init__(self, name: str, mode: str = "des"):
-        self.name  = name
-        self.mode  = mode
-        self.Fl_I  = FlowStation(f"{name}.Fl_I")
-        self.Fl_O  = FlowStation(f"{name}.Fl_O")
+        self.name = name
+        self.mode = mode
+        self.Fl_I = FlowStation(f"{name}.Fl_I")
+        self.Fl_O = FlowStation(f"{name}.Fl_O")
 
     def residuals(self, vars, **kwargs):
         raise NotImplementedError
@@ -31,7 +31,7 @@ class Expander(Element):
     def __init__(self, name: str, n_streams: int,
                  r_hub: float, r_tip: float, mode: str = "des"):
         super().__init__(name, mode)
-        self.n     = n_streams
+        self.n = n_streams
         self.r_hub = r_hub
         self.r_tip = r_tip
         self.stream_outlets = [
@@ -42,15 +42,15 @@ class Expander(Element):
         return []
 
     def execute(self, **kwargs):
-        inlet    = self.Fl_I
-        m_per    = inlet.m / self.n
-        r_sq_hub = self.r_hub**2
-        r_sq_tip = self.r_tip**2
+        inlet = self.Fl_I
+        m_per = inlet.m / self.n
+        r_sq_hub = self.r_hub ** 2
+        r_sq_tip = self.r_tip ** 2
 
         for i, port in enumerate(self.stream_outlets):
-            r_in_sq  = r_sq_hub + i       * (r_sq_tip - r_sq_hub) / self.n
+            r_in_sq = r_sq_hub + i * (r_sq_tip - r_sq_hub) / self.n
             r_out_sq = r_sq_hub + (i + 1) * (r_sq_tip - r_sq_hub) / self.n
-            r_c      = np.sqrt(0.5 * (r_in_sq + r_out_sq))
+            r_c = np.sqrt(0.5 * (r_in_sq + r_out_sq))
 
             port.copy_from(inlet)
             port.m = m_per
@@ -74,7 +74,7 @@ class Reducer(Element):
         return []
 
     def execute(self, **kwargs):
-        ports   = self.stream_inlets
+        ports = self.stream_inlets
         total_m = sum(p.m for p in ports)
         if total_m < 1e-12:
             return
@@ -82,14 +82,13 @@ class Reducer(Element):
         def wavg(attr):
             return sum(p.m * getattr(p, attr) for p in ports) / total_m
 
-        # Method assumed updated in flowstation.py to match new variables
         self.Fl_O.set_state_from_h_t_s(
-            m   = total_m,
-            h_t = wavg("h_t"),
-            s_s = wavg("s_s"),
-            r   = wavg("r"),
-            v_u = wavg("v_u"),
-            v_m = wavg("v_m"),
+            m=total_m,
+            h_t=wavg("h_t"),
+            s_s=wavg("s_s"),
+            r=wavg("r"),
+            v_u=wavg("v_u"),
+            v_m=wavg("v_m"),
         )
 
 
@@ -103,20 +102,20 @@ class BladeRow(Element):
                  loss_models: list, deviation_models: list,
                  blockage_models: list, mode: str = "des"):
         super().__init__(name, mode)
-        self.n     = n_streams
+        self.n = n_streams
         self.r_hub = r_hub
         self.r_tip = r_tip
 
         self.segments: list[StreamSegment] = []
         for i in range(n_streams):
             seg = StreamSegment(
-                name            = f"{name}.SS_{i}",
-                beta_le         = beta_le_dist[i],
-                beta_te         = beta_te_dist[i],
-                loss_model      = loss_models[i],
-                deviation_model = deviation_models[i],
-                blockage_model  = blockage_models[i],
-                mode            = mode,
+                name=f"{name}.SS_{i}",
+                beta_le=beta_le_dist[i],
+                beta_te=beta_te_dist[i],
+                loss_model=loss_models[i],
+                deviation_model=deviation_models[i],
+                blockage_model=blockage_models[i],
+                mode=mode,
             )
             self.segments.append(seg)
 
@@ -125,8 +124,8 @@ class BladeRow(Element):
 
     @staticmethod
     def _equal_area_bounds(r_hub: float, r_tip: float, n: int) -> np.ndarray:
-        r_sq_hub = r_hub**2
-        r_sq_tip = r_tip**2
+        r_sq_hub = r_hub ** 2
+        r_sq_tip = r_tip ** 2
         return np.array([
             np.sqrt(r_sq_hub + k * (r_sq_tip - r_sq_hub) / n)
             for k in range(n + 1)
@@ -139,54 +138,72 @@ class BladeRow(Element):
 
     @staticmethod
     def _bounds_from_interior(r_hub: float, r_int: np.ndarray,
-                               r_tip: float) -> np.ndarray:
+                              r_tip: float) -> np.ndarray:
         return np.concatenate([[r_hub], r_int, [r_tip]])
-
-    @staticmethod
-    def _static_pressure(p_t: float, h_t: float, v_m: float,
-                         v_u: float) -> float:
-        v_sq = v_m**2 + v_u**2
-        t    = max((h_t - 0.5 * v_sq) / CP, 1.0)
-        t_t  = max(h_t / CP, 1.0)
-        return p_t * (t / t_t) ** (GAMMA / (GAMMA - 1.0))
-
-    @staticmethod
-    def _density(p_t: float, h_t: float, v_m: float, v_u: float) -> float:
-        v_sq = v_m**2 + v_u**2
-        t    = max((h_t - 0.5 * v_sq) / CP, 1.0)
-        p_s  = BladeRow._static_pressure(p_t, h_t, v_m, v_u)
-        return max(p_s / (R * t), 1e-6)
 
     def _re_residual(self, i: int, h_t2: np.ndarray, p_t2: np.ndarray,
                      beta2: np.ndarray, v_m2: np.ndarray,
                      r_bounds: np.ndarray, omega: float) -> float:
-        r2_i   = 0.5 * (r_bounds[i]   + r_bounds[i + 1])
-        r2_ip1 = 0.5 * (r_bounds[i+1] + r_bounds[i + 2])
+        """
+        Full Simple Radial Equilibrium (SRE) Equation solver.
+        dht/dr - T·ds/dr = Vu · d(r·Vu)/dr / r + Vm · dVm/dr + Vm² · (sin φ / rs - cos φ · dφ/dr)
+        """
+        r2_i = 0.5 * (r_bounds[i] + r_bounds[i + 1])
+        r2_ip1 = 0.5 * (r_bounds[i + 1] + r_bounds[i + 2])
+        dr = r2_ip1 - r2_i
 
-        v_u_i   = omega * r2_i   - v_m2[i]   * np.tan(beta2[i])
-        v_u_ip1 = omega * r2_ip1 - v_m2[i+1] * np.tan(beta2[i+1])
+        # State i
+        v_u_i = omega * r2_i - v_m2[i] * np.tan(beta2[i])
+        t_t_i = max(h_t2[i] / CP, 1.0)
+        s_s_i = entropy_from_pt_tt(p_t2[i], t_t_i)
+        v_sq_i = v_m2[i] ** 2 + v_u_i ** 2
+        t_s_i = max((h_t2[i] - 0.5 * v_sq_i) / CP, 1.0)
 
-        p_s_i   = self._static_pressure(p_t2[i],   h_t2[i],   v_m2[i],   v_u_i)
-        p_s_ip1 = self._static_pressure(p_t2[i+1], h_t2[i+1], v_m2[i+1], v_u_ip1)
-        rho_i   = self._density(p_t2[i],   h_t2[i],   v_m2[i],   v_u_i)
-        rho_ip1 = self._density(p_t2[i+1], h_t2[i+1], v_m2[i+1], v_u_ip1)
+        # State i+1
+        v_u_ip1 = omega * r2_ip1 - v_m2[i + 1] * np.tan(beta2[i + 1])
+        t_t_ip1 = max(h_t2[i + 1] / CP, 1.0)
+        s_s_ip1 = entropy_from_pt_tt(p_t2[i + 1], t_t_ip1)
+        v_sq_ip1 = v_m2[i + 1] ** 2 + v_u_ip1 ** 2
+        t_s_ip1 = max((h_t2[i + 1] - 0.5 * v_sq_ip1) / CP, 1.0)
 
-        rho_avg = 0.5 * (rho_i + rho_ip1)
+        # Gradients & Averages
+        t_avg = 0.5 * (t_s_i + t_s_ip1)
+        r_v_u_i = r2_i * v_u_i
+        r_v_u_ip1 = r2_ip1 * v_u_ip1
+
+        dh_t_dr = (h_t2[i + 1] - h_t2[i]) / dr
+        ds_s_dr = (s_s_ip1 - s_s_i) / dr
+        d_rvu_dr = (r_v_u_ip1 - r_v_u_i) / dr
+        dvm_dr = (v_m2[i + 1] - v_m2[i]) / dr
+
         v_u_avg = 0.5 * (v_u_i + v_u_ip1)
-        r_avg   = 0.5 * (r2_i  + r2_ip1)
-        dr      = r2_ip1 - r2_i
+        v_m_avg = 0.5 * (v_m2[i] + v_m2[i + 1])
+        r_avg = 0.5 * (r2_i + r2_ip1)
 
-        re_rhs = rho_avg * v_u_avg**2 / max(r_avg, 1e-6) * dr
-        return (p_s_ip1 - p_s_i - re_rhs) / max(p_s_i, 1.0)
+        # Curvature terms
+        seg_i = self.segments[i]
+        seg_ip1 = self.segments[i + 1]
+        phi_avg = 0.5 * (seg_i.phi + seg_ip1.phi)
+        rs_avg = 0.5 * (seg_i.rs + seg_ip1.rs)
+        dphi_dr = (seg_ip1.phi - seg_i.phi) / dr if dr > 1e-6 else 0.0
+
+        curv_term = v_m_avg ** 2 * (np.sin(phi_avg) / rs_avg - np.cos(phi_avg) * dphi_dr)
+
+        # Balance Equation
+        LHS = dh_t_dr - t_avg * ds_s_dr
+        RHS = (v_u_avg / r_avg) * d_rvu_dr + v_m_avg * dvm_dr + curv_term
+
+        # Normalised residual
+        return (LHS - RHS) / max(abs(LHS), 1e-3)
 
     def residuals_5n(self, vars_flat: np.ndarray, omega: float) -> np.ndarray:
         n = self.n
 
-        h_t2  = vars_flat[0*n : 1*n]
-        p_t2  = vars_flat[1*n : 2*n]
-        beta2 = vars_flat[2*n : 3*n]
-        v_m2  = vars_flat[3*n : 4*n]
-        r_int = vars_flat[4*n:]
+        h_t2 = vars_flat[0 * n: 1 * n]
+        p_t2 = vars_flat[1 * n: 2 * n]
+        beta2 = vars_flat[2 * n: 3 * n]
+        v_m2 = vars_flat[3 * n: 4 * n]
+        r_int = vars_flat[4 * n:]
 
         r_bounds = self._bounds_from_interior(self.r_hub, r_int, self.r_tip)
         self._update_segment_geometry(r_bounds)
@@ -209,16 +226,12 @@ class BladeRow(Element):
 
     def execute(self, omega: float):
         n = self.n
-        agg = self.Fl_I
-        for seg in self.segments:
-            seg.Fl_I.copy_from(agg)
-            seg.Fl_I.m = agg.m / n
 
-        # Extract values using updated names
-        h_t0   = np.full(n, agg.h_t * (1.02 if omega > 0 else 0.98))
-        p_t0   = np.full(n, agg.p_t * (1.3  if omega > 0 else 0.97))
-        beta0  = np.array([seg.beta_te for seg in self.segments])
-        v_m0   = np.full(n, agg.v_m)
+        # FIX: Rely on upstream component to push the profile. Do NOT override with aggregate average.
+        h_t0 = np.array([seg.Fl_I.h_t * (1.02 if omega > 0 else 0.98) for seg in self.segments])
+        p_t0 = np.array([seg.Fl_I.p_t * (1.3 if omega > 0 else 0.97) for seg in self.segments])
+        beta0 = np.array([seg.beta_te for seg in self.segments])
+        v_m0 = np.array([seg.Fl_I.v_m for seg in self.segments])
         r_int0 = self._r_bounds[1:-1].copy()
 
         x0 = np.concatenate([h_t0, p_t0, beta0, v_m0, r_int0])
@@ -229,12 +242,12 @@ class BladeRow(Element):
         if ier != 1:
             print(f"  WARNING [{self.name}]: 5n-1 solver did not converge — {msg}")
 
-        h_t2  = sol[0*n : 1*n]
-        p_t2  = sol[1*n : 2*n]
-        beta2 = sol[2*n : 3*n]
-        v_m2  = sol[3*n : 4*n]
-        r_int = sol[4*n:]
-        r_b   = self._bounds_from_interior(self.r_hub, r_int, self.r_tip)
+        h_t2 = sol[0 * n: 1 * n]
+        p_t2 = sol[1 * n: 2 * n]
+        beta2 = sol[2 * n: 3 * n]
+        v_m2 = sol[3 * n: 4 * n]
+        r_int = sol[4 * n:]
+        r_b = self._bounds_from_interior(self.r_hub, r_int, self.r_tip)
 
         for i, seg in enumerate(self.segments):
             r2_i = 0.5 * (r_b[i] + r_b[i + 1])
@@ -243,18 +256,27 @@ class BladeRow(Element):
         self._write_aggregate_exit()
 
     def _write_aggregate_exit(self):
-        segs    = self.segments
+        segs = self.segments
         total_m = sum(s.Fl_O.m for s in segs)
+        if total_m < 1e-12:
+            return
+
         def wavg(attr):
             return sum(s.Fl_O.m * getattr(s.Fl_O, attr) for s in segs) / total_m
 
+        # FIX: Average mass/enthalpy/pressure, deduce the mixed entropy from that
+        h_t_agg = wavg("h_t")
+        p_t_agg = wavg("p_t")
+        t_t_agg = max(h_t_agg / CP, 1.0)
+        s_s_agg = entropy_from_pt_tt(p_t_agg, t_t_agg)
+
         self.Fl_O.set_state_from_h_t_s(
-            m   = total_m,
-            h_t = wavg("h_t"),
-            s_s = wavg("s_s"),
-            r   = wavg("r"),
-            v_u = wavg("v_u"),
-            v_m = wavg("v_m")
+            m=total_m,
+            h_t=h_t_agg,
+            s_s=s_s_agg,
+            r=wavg("r"),
+            v_u=wavg("v_u"),
+            v_m=wavg("v_m")
         )
 
 
@@ -262,14 +284,13 @@ class BladeRow(Element):
 # InletBoundary
 # =============================================================================
 class InletBoundary(Element):
-    # Updated variables to match new FlowStation nomenclature
     def __init__(self, name: str, m: float, p_t: float, t_t: float,
                  r: float, v_u: float, v_m: float, mode: str = "des"):
         super().__init__(name, mode)
-        self._m   = m;
+        self._m = m;
         self._p_t = p_t;
         self._t_t = t_t
-        self._r   = r;
+        self._r = r;
         self._v_u = v_u;
         self._v_m = v_m
 

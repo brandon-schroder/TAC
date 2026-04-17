@@ -40,6 +40,9 @@ class SlopeAndCurvature:
 
             denom = (1.0 + dr**2) ** 1.5
             kappa = np.abs(d2r) / np.where(denom > 1e-12, denom, 1e-12)
-            rs[:, j]  = np.where(kappa > 1e-10, 1.0 / kappa, 1e9)
+
+            rs[:, j] = np.full_like(kappa, 1e9)
+            mask = np.abs(kappa) > 1e-10
+            rs[mask, j] = 1.0 / kappa[mask]
 
         return phi, rs

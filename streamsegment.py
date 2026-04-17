@@ -80,7 +80,7 @@ class StreamSegment:
         delta = self.deviation_model.compute(
             inlet, self.beta_le, omega, r2, v_m2, beta2)
         a_block = self.blockage_model.compute(
-            inlet, r2, self.r_inner, self.r_outer)
+            inlet, self.r_inner, self.r_outer)
 
         # Effective flow area
         a_gross = self.annular_area(self.r_inner, self.r_outer, self.phi)
@@ -105,14 +105,7 @@ class StreamSegment:
         v_u2 = u2 - w_u2
         s_s2 = entropy_from_pt_tt(p_t2, max(h_t2 / CP, 1.0))
 
-        # NOTE: If your FlowStation definition for `set_state_from_h_t_s`
-        # doesn't take 'beta', you can remove it from kwargs below.
         self.Fl_O.set_state_from_h_t_s(
-            m=self.Fl_I.m,
-            h_t=h_t2,
-            s_s=s_s2,
-            r=r2,
-            v_u=v_u2,
-            v_m=v_m2,
-            beta=beta2
+            m=self.Fl_I.m, h_t=h_t2, s_s=s_s2, r=r2,
+            v_u=v_u2, v_m=v_m2, beta=beta2
         )
