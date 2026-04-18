@@ -4,13 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a9935f72-4b07-4b85-80a1-58289998f23b" name="Changes" comment="Rework flowstation.py">
+    <list default="true" id="a9935f72-4b07-4b85-80a1-58289998f23b" name="Changes" comment="Add pressure gradient terms">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/elements.py" beforeDir="false" afterPath="$PROJECT_DIR$/elements.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/slopecurvature.py" beforeDir="false" afterPath="$PROJECT_DIR$/slopecurvature.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/streamsegment.py" beforeDir="false" afterPath="$PROJECT_DIR$/streamsegment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/subelements.py" beforeDir="false" afterPath="$PROJECT_DIR$/subelements.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_dev.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_dev.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/flowstation.py" beforeDir="false" afterPath="$PROJECT_DIR$/flowstation.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -141,7 +138,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776429165817</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Add pressure gradient terms">
+      <option name="closed" value="true" />
+      <created>1776447218569</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1776447218569</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -153,6 +158,7 @@
     <MESSAGE value="Add thermos package and update meanline structure" />
     <MESSAGE value="Add streamline functionality" />
     <MESSAGE value="Rework flowstation.py" />
-    <option name="LAST_COMMIT_MESSAGE" value="Rework flowstation.py" />
+    <MESSAGE value="Add pressure gradient terms" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add pressure gradient terms" />
   </component>
 </project>
